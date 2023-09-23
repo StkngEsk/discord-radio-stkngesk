@@ -8,10 +8,17 @@ import {
   joinVoiceChannel,
 } from "@discordjs/voice";
 import { GatewayIntentBits } from "discord-api-types/v10";
-import { Client, type VoiceBasedChannel, Events, Channel, ChannelType } from "discord.js";
+import {
+  Client,
+  type VoiceBasedChannel,
+  Events,
+  Channel,
+  ChannelType,
+} from "discord.js";
 import ytdl from "ytdl-core";
+import { start } from "./api";
 
-const { token, maxTransmissionGap } = require("../config.json") as {
+const { token, maxTransmissionGap } = require("../../config.json") as {
   token: string;
   maxTransmissionGap: number;
 };
@@ -25,15 +32,14 @@ const player = createAudioPlayer({
   },
 });
 
-function attachRecorder() {
+export function attachRecorder(url: string) {
   player.play(
     createAudioResource(
-      ytdl("https://www.youtube.com/watch?v=M3xtWbaLhss", {
+      ytdl(url, {
         filter: "audioonly",
       })
     )
   );
-  console.log("Attached recorder - ready to go!");
 }
 
 player.on("stateChange", (oldState, newState) => {
@@ -41,16 +47,16 @@ player.on("stateChange", (oldState, newState) => {
     oldState.status === AudioPlayerStatus.Idle &&
     newState.status === AudioPlayerStatus.Playing
   ) {
-    console.log("Playing audio output on audio player");
-    const channel: Channel | undefined = client.channels.cache.get(actualChannelId);
+    const channel: Channel | undefined =
+      client.channels.cache.get(actualChannelId);
     if (channel && channel.type == ChannelType.GuildText) {
-        channel.send("No music to play")
+      channel.send("No hay pa escuchar");
     }
   } else if (newState.status === AudioPlayerStatus.Idle) {
-    console.log("Playback has stopped. Attempting to restart.");
-    const channel: Channel | undefined = client.channels.cache.get(actualChannelId);
+    const channel: Channel | undefined =
+      client.channels.cache.get(actualChannelId);
     if (channel && channel.type == ChannelType.GuildText) {
-        channel.send("No music to play")
+      channel.send("Se acabo la muca");
     }
   }
 });
@@ -81,30 +87,28 @@ const client = new Client({
 
 client.on(Events.ClientReady, () => {
   console.log("discord.js client is ready!");
-  // attachRecorder();
 });
 
 client.on(Events.MessageCreate, async (message) => {
-  console.log(message);
-    attachRecorder()
   if (!message.guildId) return;
-  if (message.content === "-join") {
-
+  if (message.content === "prendelo") {
     const channel = message.member?.voice.channel;
     if (channel) {
       try {
         actualChannelId = message.channelId;
         const connection = await connectToChannel(channel);
         connection.subscribe(player);
-        await message.reply("Playing now!");
+        await message.reply("Prendido perro");
       } catch (error) {
+        await message.reply("Algo pasoo");
         console.error(error);
       }
     } else {
       actualChannelId = "";
-      await message.reply("Join a voice channel then try again!");
+      await message.reply("No estas en un canal capo");
     }
   }
 });
 
+start();
 void client.login(token);
