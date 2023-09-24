@@ -37,6 +37,10 @@ export function attachRecorder(url: string) {
     createAudioResource(
       ytdl(url, {
         filter: "audioonly",
+        highWaterMark: 1 << 62,
+        liveBuffer: 1 << 62,
+        dlChunkSize: 0,
+        quality: "lowestaudio",
       })
     )
   );
