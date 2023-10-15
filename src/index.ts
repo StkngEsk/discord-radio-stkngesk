@@ -6,6 +6,7 @@ import {
   AudioPlayerStatus,
   VoiceConnectionStatus,
   joinVoiceChannel,
+  VoiceConnection,
 } from "@discordjs/voice";
 import { GatewayIntentBits } from "discord-api-types/v10";
 import {
@@ -15,8 +16,8 @@ import {
   Channel,
   ChannelType,
 } from "discord.js";
-import ytdl from "ytdl-core";
 import { start } from "./api";
+import { video_basic_info, stream } from "play-dl";
 
 const { token, maxTransmissionGap } = require("../../config.json") as {
   token: string;
@@ -25,6 +26,9 @@ const { token, maxTransmissionGap } = require("../../config.json") as {
 
 let actualChannelId: string = "";
 
+let actualConnection: VoiceConnection | undefined = undefined;
+let actualVoiceChannelId: string = "";
+
 const player = createAudioPlayer({
   behaviors: {
     noSubscriber: NoSubscriberBehavior.Play,
@@ -32,17 +36,13 @@ const player = createAudioPlayer({
   },
 });
 
-export function attachRecorder(url: string) {
+export async function attachRecorder(url: string) {
+  const { stream: playingNow, type } = await stream(url);
+
   player.play(
-    createAudioResource(
-      ytdl(url, {
-        filter: "audioonly",
-        highWaterMark: 1 << 62,
-        liveBuffer: 1 << 62,
-        dlChunkSize: 0,
-        quality: "lowestaudio",
-      })
-    )
+    createAudioResource(playingNow, {
+      inputType: type,
+    })
   );
 }
 
@@ -61,11 +61,26 @@ player.on("stateChange", (oldState, newState) => {
       client.channels.cache.get(actualChannelId);
     if (channel && channel.type == ChannelType.GuildText) {
       channel.send("Se acabo la muca");
+      setInterval(async () => {
+        const updatedChannel: Channel | null = await client.channels.fetch(
+          actualVoiceChannelId
+        );
+        if (
+          updatedChannel &&
+          updatedChannel.type == ChannelType.GuildVoice &&
+          updatedChannel.members.size == 1 &&
+          actualConnection
+        ) {
+          actualConnection.destroy();
+        }
+      }, 300000);
     }
   }
 });
 
-async function connectToChannel(channel: VoiceBasedChannel) {
+async function connectToChannel(
+  channel: VoiceBasedChannel
+): Promise<VoiceConnection> {
   const connection = joinVoiceChannel({
     channelId: channel.id,
     guildId: channel.guild.id,
@@ -99,9 +114,10 @@ client.on(Events.MessageCreate, async (message) => {
     const channel = message.member?.voice.channel;
     if (channel) {
       try {
+        actualVoiceChannelId = channel.id;
         actualChannelId = message.channelId;
-        const connection = await connectToChannel(channel);
-        connection.subscribe(player);
+        actualConnection = await connectToChannel(channel);
+        actualConnection.subscribe(player);
         await message.reply("Prendido perro");
       } catch (error) {
         await message.reply("Algo pasoo");
