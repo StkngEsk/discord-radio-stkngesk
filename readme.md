@@ -1,6 +1,10 @@
 ## Discord Radio StkngEsk
 
+This bot is intended to be used on a single voice channel and an unique discord server.
+
 **How to use:**
+
+Install TypeScript globally `npm i -g typescript` to use `tsc` inside start command to build the dist folder.
 
 Create a `config.json` with your custom discord bot token and desired transmission gap
 
@@ -22,8 +26,9 @@ where the bot is, then bot will join to the voice channel
 
 How to play music:
 
-A fastify api endpoint will be on port 3322
+say on a text channel while you are in a voice channel: `prendelo`
+say on a text channel: `pon {yt/spotify/soundcloud url}`
 
-use endpoint `/play` GET request with queryParam `?url={your-youtube-video-url}`
+How to loop song list:
 
-i.e.: GET `http://localhost:3322/play?url={your-youtube-video-url}`
+say on a text channel: `loopit`
