@@ -18,7 +18,7 @@ import {
   ChannelType,
   Message,
 } from "discord.js";
-import { stream } from "play-dl";
+import { stream, YouTubePlayList, playlist_info } from "play-dl";
 import { IConfig } from "@interfaces/IConfig.interface";
 import config from "../config.json";
 import messages from "../catalogs/messages.json";
@@ -31,6 +31,7 @@ let actualVoiceChannelId: string;
 let isLooping: boolean = false;
 let initialPlay: boolean = true;
 let songList: string[] = [];
+let actualSong: number = 0;
 
 const { token, maxTransmissionGap }: IConfig = config;
 const {
@@ -60,10 +61,13 @@ const client = new Client({
 async function addUrlToList(message: Message<boolean>): Promise<void> {
   const startingString: string = InputsEnum.ADD_URL;
   const regex = new RegExp(`\\b${startingString}\\b`, "gi");
-
   const [, url]: string[] = message.content.split(regex);
 
-  songList.push(url);
+  if (!url.includes("list=")) {
+    songList.push(url);
+  } else {
+    await verifyPlaylist(url);
+  }
 
   if (initialPlay) {
     await attachRecorder();
@@ -71,8 +75,20 @@ async function addUrlToList(message: Message<boolean>): Promise<void> {
   }
 }
 
+async function verifyPlaylist(url: string) {
+  const playlistResult: YouTubePlayList = await playlist_info(url, {
+    incomplete: true,
+  });
+  const playlistVideos = await playlistResult.all_videos();
+
+  for (let i = 0; i < playlistVideos.length; i++) {
+    const video = playlistVideos[i];
+    songList.push(video.url);
+  }
+}
+
 async function attachRecorder(): Promise<void> {
-  const { stream: playingNow, type } = await stream(songList[0]);
+  const { stream: playingNow, type } = await stream(songList[actualSong]);
 
   player.play(
     createAudioResource(playingNow, {
@@ -117,6 +133,7 @@ async function connectToChannel(
   }
 }
 
+// State change from play-dl media player
 player.on("stateChange", (oldState, newState) => {
   if (
     oldState.status === AudioPlayerStatus.Idle &&
@@ -128,7 +145,11 @@ player.on("stateChange", (oldState, newState) => {
       channel.send(noMusic);
     }
   } else if (newState.status === AudioPlayerStatus.Idle) {
-    if (!isLooping) songList.shift();
+    if (!isLooping) {
+      songList.shift();
+    } else {
+      actualSong >= songList.length - 1 ? (actualSong = 0) : actualSong++;
+    }
 
     if (songList.length > 0) {
       attachRecorder();
