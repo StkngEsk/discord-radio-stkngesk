@@ -34,7 +34,7 @@ let initialPlay: boolean = true;
 let songList: string[] = [];
 let actualSong: number = 0;
 
-const { token, maxTransmissionGap }: IConfig = config;
+const { token, maxTransmissionGap, cookies }: IConfig = config;
 const {
   noMusic,
   noMusicLeft,
@@ -50,6 +50,8 @@ const player: AudioPlayer = createAudioPlayer({
     maxMissedFrames: Math.round(maxTransmissionGap / 20),
   },
 });
+
+const agent = ytdl.createAgent(cookies);
 
 const client = new Client({
   intents: [
@@ -95,6 +97,7 @@ async function attachRecorder(): Promise<void> {
   player.play(
     createAudioResource(
       ytdl(songList[actualSong], {
+        agent,
         filter: "audioonly",
         highWaterMark: 1 << 62,
         liveBuffer: 1 << 62,
