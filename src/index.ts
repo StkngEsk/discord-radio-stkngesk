@@ -18,12 +18,13 @@ import {
   ChannelType,
   Message,
 } from "discord.js";
-import { stream, YouTubePlayList, playlist_info } from "play-dl";
 import { IConfig } from "@interfaces/IConfig.interface";
 import config from "../config.json";
 import messages from "../catalogs/messages.json";
 import { IMessages } from "@interfaces/IMessages.interface";
 import { InputsEnum } from "../enums/Inputs.enum";
+import ytdl from "@distube/ytdl-core";
+import { playlist_info, YouTubePlayList } from "play-dl";
 
 let actualConnection: VoiceConnection | undefined;
 let actualChannelId: string;
@@ -40,6 +41,7 @@ const {
   channelConnectSuccess,
   channelConnectFailed,
   userNotInVoiceChannel,
+  xupalo,
 }: IMessages = messages;
 
 const player: AudioPlayer = createAudioPlayer({
@@ -76,7 +78,7 @@ async function addUrlToList(message: Message<boolean>): Promise<void> {
 }
 
 async function verifyPlaylist(url: string) {
-  const playlistResult: YouTubePlayList = await playlist_info(url, {
+  const playlistResult = await playlist_info(url, {
     incomplete: true,
   });
   const playlistVideos = await playlistResult.all_videos();
@@ -88,12 +90,18 @@ async function verifyPlaylist(url: string) {
 }
 
 async function attachRecorder(): Promise<void> {
-  const { stream: playingNow, type } = await stream(songList[actualSong]);
+  console.log("A vece la miro y shoro", songList[actualSong]);
 
   player.play(
-    createAudioResource(playingNow, {
-      inputType: type,
-    })
+    createAudioResource(
+      ytdl(songList[actualSong], {
+        filter: "audioonly",
+        highWaterMark: 1 << 62,
+        liveBuffer: 1 << 62,
+        dlChunkSize: 0,
+        quality: "lowestaudio",
+      })
+    )
   );
 }
 
@@ -195,6 +203,8 @@ client.on(Events.MessageCreate, async (message) => {
     await addUrlToList(message);
   } else if (userMessage.includes(InputsEnum.LOOP)) {
     isLooping = true;
+  } else if (userMessage.toLowerCase() === InputsEnum.XUPALO) {
+    await message.reply(xupalo);
   } else if (userMessage.includes(InputsEnum.STOP)) {
     songList = [];
     isLooping = false;

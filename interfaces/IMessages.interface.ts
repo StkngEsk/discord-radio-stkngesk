@@ -4,4 +4,5 @@ export interface IMessages {
   channelConnectSuccess: string;
   channelConnectFailed: string;
   userNotInVoiceChannel: string;
+  xupalo: string;
 }

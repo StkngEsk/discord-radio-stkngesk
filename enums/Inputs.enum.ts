@@ -3,4 +3,5 @@ export enum InputsEnum {
   LOOP = "loopit",
   CONNECT_CHANNEL = "prendelo",
   STOP = "paralo",
+  XUPALO = "chupalo",
 }
