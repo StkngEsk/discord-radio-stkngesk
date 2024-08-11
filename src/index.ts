@@ -51,7 +51,7 @@ const player: AudioPlayer = createAudioPlayer({
   },
 });
 
-const agent = ytdl.createProxyAgent({ uri: "http://152.26.231.42:9443" }, cookies);
+const agent = ytdl.createAgent(cookies);
 
 const client = new Client({
   intents: [
@@ -103,6 +103,13 @@ async function attachRecorder(): Promise<void> {
         liveBuffer: 1 << 62,
         dlChunkSize: 0,
         quality: "lowestaudio",
+        requestOptions: {
+          headersTimeout: 1000 * 10, // 10 Seconds
+          bodyTimeout: 1000 * 10, // 10 Seconds
+          headers: {
+            referer: "https://www.youtube.com/",
+          },
+        },
       })
     )
   );
