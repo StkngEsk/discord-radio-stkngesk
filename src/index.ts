@@ -52,7 +52,7 @@ const player: AudioPlayer = createAudioPlayer({
 });
 
 const agent = ytdl.createProxyAgent({
-  uri: "http://152.26.229.42:9443",
+  uri: "http://152.26.229.66:9443",
 });
 
 const client = new Client({
