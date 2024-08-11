@@ -105,11 +105,6 @@ async function attachRecorder(): Promise<void> {
         liveBuffer: 1 << 62,
         dlChunkSize: 0,
         quality: "lowestaudio",
-        requestOptions: {
-          headers: {
-            referer: "https://www.youtube.com/",
-          },
-        },
       })
     )
   );
