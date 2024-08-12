@@ -51,7 +51,7 @@ const player: AudioPlayer = createAudioPlayer({
   },
 });
 
-const agent = ytdl.createAgent(cookies);
+const agent = ytdl.createProxyAgent({ uri: "http://152.26.229.66:9443" }, cookies);
 
 const client = new Client({
   intents: [
