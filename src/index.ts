@@ -24,7 +24,7 @@ import messages from "../catalogs/messages.json";
 import { IMessages } from "@interfaces/IMessages.interface";
 import { InputsEnum } from "../enums/Inputs.enum";
 import ytdl from "@distube/ytdl-core";
-import { playlist_info, YouTubePlayList } from "play-dl";
+import { playlist_info } from "play-dl";
 
 let actualConnection: VoiceConnection | undefined;
 let actualChannelId: string;
@@ -51,9 +51,7 @@ const player: AudioPlayer = createAudioPlayer({
   },
 });
 
-const agent = ytdl.createProxyAgent({
-  uri: "http://154.73.29.1:8080",
-});
+const agent = ytdl.createAgent(cookies);
 
 const client = new Client({
   intents: [
@@ -94,8 +92,6 @@ async function verifyPlaylist(url: string) {
 }
 
 async function attachRecorder(): Promise<void> {
-  console.log("A vece la miro y shoro", songList[actualSong]);
-
   player.play(
     createAudioResource(
       ytdl(songList[actualSong], {
