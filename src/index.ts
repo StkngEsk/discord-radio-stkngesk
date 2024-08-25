@@ -96,9 +96,6 @@ async function attachRecorder(): Promise<void> {
         poToken: po_token,
         visitorData: visitor_data,
         filter: "audioonly",
-        highWaterMark: 1 << 62,
-        liveBuffer: 1 << 62,
-        dlChunkSize: 0,
         quality: "lowestaudio",
       })
     )
