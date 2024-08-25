@@ -23,7 +23,7 @@ import config from "../config.json";
 import messages from "../catalogs/messages.json";
 import { IMessages } from "@interfaces/IMessages.interface";
 import { InputsEnum } from "../enums/Inputs.enum";
-import ytdl from "@distube/ytdl-core";
+import ytdl from "@ybd-project/ytdl-core";
 import { playlist_info } from "play-dl";
 
 let actualConnection: VoiceConnection | undefined;
@@ -34,7 +34,7 @@ let initialPlay: boolean = true;
 let songList: string[] = [];
 let actualSong: number = 0;
 
-const { token, maxTransmissionGap, cookies }: IConfig = config;
+const { token, maxTransmissionGap, po_token, visitor_data }: IConfig = config;
 const {
   noMusic,
   noMusicLeft,
@@ -50,8 +50,6 @@ const player: AudioPlayer = createAudioPlayer({
     maxMissedFrames: Math.round(maxTransmissionGap / 20),
   },
 });
-
-const agent = ytdl.createAgent(cookies);
 
 const client = new Client({
   intents: [
@@ -95,7 +93,8 @@ async function attachRecorder(): Promise<void> {
   player.play(
     createAudioResource(
       ytdl(songList[actualSong], {
-        agent,
+        poToken: po_token,
+        visitorData: visitor_data,
         filter: "audioonly",
         highWaterMark: 1 << 62,
         liveBuffer: 1 << 62,

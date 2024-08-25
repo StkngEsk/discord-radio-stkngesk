@@ -1,7 +1,6 @@
-import { Cookie } from "@distube/ytdl-core";
-
 export interface IConfig {
   token: string;
   maxTransmissionGap: number;
-  cookies: Cookie[];
+  po_token: string;
+  visitor_data: string;
 }
