@@ -23,7 +23,7 @@ import config from "../config.json";
 import messages from "../catalogs/messages.json";
 import { IMessages } from "@interfaces/IMessages.interface";
 import { InputsEnum } from "../enums/Inputs.enum";
-import ytdl from "@ybd-project/ytdl-core";
+import { YtdlCore } from "@ybd-project/ytdl-core";
 import { playlist_info } from "play-dl";
 
 let actualConnection: VoiceConnection | undefined;
@@ -49,6 +49,13 @@ const player: AudioPlayer = createAudioPlayer({
     noSubscriber: NoSubscriberBehavior.Play,
     maxMissedFrames: Math.round(maxTransmissionGap / 20),
   },
+});
+
+const ytdl = new YtdlCore({
+  poToken: po_token,
+  visitorData: visitor_data,
+  filter: "audioonly",
+  quality: "lowestaudio",
 });
 
 const client = new Client({
@@ -90,15 +97,9 @@ async function verifyPlaylist(url: string) {
 }
 
 async function attachRecorder(): Promise<void> {
+  const song = await ytdl.download(songList[actualSong])
   player.play(
-    createAudioResource(
-      ytdl(songList[actualSong], {
-        poToken: po_token,
-        visitorData: visitor_data,
-        filter: "audioonly",
-        quality: "lowestaudio",
-      })
-    )
+    createAudioResource(song as any)
   );
 }
 
