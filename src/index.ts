@@ -7,7 +7,7 @@ import {
   VoiceConnectionStatus,
   joinVoiceChannel,
   VoiceConnection,
-  AudioPlayer,
+  AudioPlayer
 } from "@discordjs/voice";
 import { GatewayIntentBits } from "discord-api-types/v10";
 import {
@@ -51,8 +51,6 @@ const player: AudioPlayer = createAudioPlayer({
   },
 });
 
-const ytdl_instance = ytdl();
-
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -92,7 +90,7 @@ async function verifyPlaylist(url: string) {
 }
 
 async function attachRecorder(): Promise<void> {
-  const song = await ytdl_instance(songList[actualSong])
+  const song = await ytdl(songList[actualSong])
   player.play(
     createAudioResource(song as any)
   );
