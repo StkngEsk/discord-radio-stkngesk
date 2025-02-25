@@ -55,7 +55,6 @@ const ytdl = new YtdlCore({
   poToken: po_token,
   visitorData: visitor_data,
   filter: "audioonly",
-  quality: "lowestaudio",
 });
 
 const client = new Client({
