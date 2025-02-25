@@ -51,12 +51,7 @@ const player: AudioPlayer = createAudioPlayer({
   },
 });
 
-const ytdl_instance = ytdl({
-  poToken: po_token,
-  visitorData: visitor_data,
-  filter: "audioonly",
-  quality: "lowestaudio"
-});
+const ytdl_instance = ytdl();
 
 const client = new Client({
   intents: [
@@ -97,7 +92,7 @@ async function verifyPlaylist(url: string) {
 }
 
 async function attachRecorder(): Promise<void> {
-  const song = await ytdl_instance.download(songList[actualSong])
+  const song = await ytdl_instance(songList[actualSong])
   player.play(
     createAudioResource(song as any)
   );
