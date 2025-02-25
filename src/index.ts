@@ -90,7 +90,7 @@ async function verifyPlaylist(url: string) {
 }
 
 async function attachRecorder(): Promise<void> {
-  const song = await ytdl(songList[actualSong])
+  const song = await ytdl(songList[actualSong], { filter: "audioonly", quality: "lowestaudio" });
   player.play(
     createAudioResource(song as any)
   );
