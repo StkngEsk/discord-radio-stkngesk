@@ -23,7 +23,7 @@ import config from "../config.json";
 import messages from "../catalogs/messages.json";
 import { IMessages } from "@interfaces/IMessages.interface";
 import { InputsEnum } from "../enums/Inputs.enum";
-import { YtdlCore } from "@ybd-project/ytdl-core";
+const ytdl = require("@distube/ytdl-core");
 import { playlist_info } from "play-dl";
 
 let actualConnection: VoiceConnection | undefined;
@@ -51,10 +51,11 @@ const player: AudioPlayer = createAudioPlayer({
   },
 });
 
-const ytdl = new YtdlCore({
+const ytdl_instance = ytdl({
   poToken: po_token,
   visitorData: visitor_data,
   filter: "audioonly",
+  quality: "lowestaudio"
 });
 
 const client = new Client({
@@ -96,7 +97,7 @@ async function verifyPlaylist(url: string) {
 }
 
 async function attachRecorder(): Promise<void> {
-  const song = await ytdl.download(songList[actualSong])
+  const song = await ytdl_instance.download(songList[actualSong])
   player.play(
     createAudioResource(song as any)
   );
