@@ -16,7 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/voice": "^0.18.0",
-    "@distube/ytdl-core": "^4.16.4",
+    "@distube/ytdl-core": "^4.16.5",
     "@ybd-project/ytdl-core": "^6.0.1",
     "discord.js": "^14.16.3",
     "libsodium-wrappers": "^0.7.10",
